@@ -1,6 +1,7 @@
 
 const express = require('express');
 const morgan = require('morgan');
+const enableDestroy = require('server-destroy');
 
 const app = express();
 
@@ -24,8 +25,16 @@ app.get('/', (req, res) => {
 app.use('/shopping-list', shoppingListRouter);
 app.use('/recipes', recipesRouter);
 
-const server = app.listen(process.env.PORT || 8080, () => {
-  console.log(`Your app is listening on port ${process.env.PORT || 8080}`);
+const server = app.listen(process.env.PORT || 3000, () => {
+  console.log(`Your app is listening on port ${process.env.PORT || 3000}`);
 });
 
+const gracefulExit = () => {
+	console.log("\nGracefully shutting down from SIGINT (Ctrl-C)");
+    enableDestroy(server);
+	server.destroy();
+    process.exit();
+};
+
+process.on('SIGINT',  gracefulExit);
 module.exports = server;
