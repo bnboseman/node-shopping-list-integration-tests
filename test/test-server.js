@@ -37,6 +37,42 @@ describe('Recipes', () => {
     });
   });
 
+  it ('should update a recipe on PUT', done => {
+    chai.request(server)
+    .get('/recipes')
+    .end((error, response) => {
+      const updated = {
+        name: 'General Tso\'s Chicken',
+        ingredients: ['Chicken', 'Awesome Sauce', 'Broccoli'],
+        id: response.body[0].id
+      };
+      chai.request(server)
+      .put(`/recipes/${response.body[0].id}`)
+      .send(updated)
+      .end((error, response) => {
+        response.should.have.status(200);
+        response.should.be.json;
+        response.body.should.be.a('object');
+        response.body.should.deep.equal(updated);
+      });
+    });
+    done();
+  });
+
+  it ('should delete a recipe on DELETE', done => {
+    chai.request(server)
+    .get('/recipes')
+    .end((error, response) => {
+      chai.request(server)
+      .delete(`recipes/${response.body[0].id}`)
+      .end((error, response) => {
+        response.should.have.status(204)
+      });
+      done();
+    });
+
+  });
+
   it('should add an recipe on POST', done => {
     const newRecipe = {name: 'bread', ingredients: ['flour', 'yeast', 'sugar', 'butter']}
     chai.request(server)
@@ -52,7 +88,6 @@ describe('Recipes', () => {
     });
     done();
   });
-  
 });
 
 describe('Shopping List', function() {
