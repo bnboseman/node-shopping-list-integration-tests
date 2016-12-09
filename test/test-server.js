@@ -17,6 +17,44 @@ afterEach(function() {
   server.close();
 });
 
+describe('Recipes', () => {
+  it('should list recipes on GET', done => {
+    chai.request(server)
+    .get('/recipes')
+    .end((error, response) => {
+      response.should.have.status(200);
+      response.should.be.json;
+      response.body.should.be.a('array');
+
+      response.body.length.should.be.at.least(1);
+
+      const expectedKeys = ['id', 'name', 'ingredients'];
+      response.body.forEach(item => {
+        item.should.be.a('object');
+        item.should.include.keys(expectedKeys)
+      });
+      done();
+    });
+  });
+
+  it('should add an recipe on POST', done => {
+    const newRecipe = {name: 'bread', ingredients: ['flour', 'yeast', 'sugar', 'butter']}
+    chai.request(server)
+    .post('/recipes')
+    .send(newRecipe)
+    .end((error, response) => {
+      response.should.have.status(201);
+      response.should.be.json;
+      response.body.should.be.a('object');
+      response.body.should.include.keys('id', 'name', 'ingredients');
+      response.body.id.should.not.be.null;
+      response.body.should.deep.equal(Object.assign(newRecipe, {id: response.body.id}));
+    });
+    done();
+  });
+  
+});
+
 describe('Shopping List', function() {
 
   it('should list items on GET', function(done) {
